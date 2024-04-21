@@ -2,6 +2,8 @@ import "package:flutter/foundation.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 import "package:gid_manager/classes/cl_homepage_data.dart";
 import "package:gid_manager/main.dart";
+import "dart:convert";
+import 'package:http/http.dart';
 
 class SResponse<T> {
   const SResponse({
@@ -14,6 +16,31 @@ class SResponse<T> {
   final bool showAlert;
   final String description;
   final T data;
+}
+
+class SupabaseC {
+  const SupabaseC({
+    required this.address,
+    required this.anonKey,
+  });
+
+  final String address;
+  final String anonKey;
+
+  Future<T?> select<T>(String table, Map<String, dynamic> args) async {
+    args["apikey"] = anonKey;
+
+    var uri =
+        Uri.https(address.replaceAll("https://", ""), "/rest/v1/$table", args);
+    var r = await get(uri);
+
+    if (r.statusCode != 200 || r.body.isEmpty) {
+      print("Error $r.statusCode");
+      return null;
+    }
+
+    return json.decode(r.body) as T;
+  }
 }
 
 class Server {
@@ -43,20 +70,22 @@ class Server {
   }
 
   Future<SResponse<List<Town>>> getTowns([int count = 3]) async {
-    var client = supabase.client;
-
     if (kDebugMode) {
       print("Running");
     }
 
-    var r = await client.from("towns").select("*").limit(count);
+    var townsR = await supabaseC.select<List<dynamic>>("towns", {
+      "select": "*",
+      "limit": "$count",
+    });
+    townsR = List<Map<String, dynamic>>.from(townsR!);
 
     if (kDebugMode) {
-      print("Get towns: ${r.length}");
+      print("Get towns: ${townsR!.length}");
     }
 
     var towns = <Town>[];
-    r.forEach((town) async {
+    townsR.forEach((town) async {
       String uuid = town["id"];
       String name = town["name"];
       List<String> descriptions = List<String>.from(town["descriptions"]);
@@ -64,12 +93,13 @@ class Server {
       String image = town["image"];
       List<Place> places = [];
 
-      var r2 = await client
+      var placesR = await supabase.client
           .from("places")
           .select("*")
-          .match({"town": uuid}).limit(3);
+          .match({"town": "$uuid"}).limit(3);
+      placesR = List<Map<String, dynamic>>.from(placesR!);
 
-      r2.forEach((place) {
+      placesR.forEach((place) {
         places.add(
           Place(
             id: place["id"],

@@ -126,7 +126,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           body: TabBarView(
             controller: controller,
             children: [
-              SingleChildScrollView(
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height),
+                // child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: towns.isEmpty
                       ? MainAxisAlignment.center
@@ -134,46 +137,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   children: towns.isEmpty
                       ? [const Text("Загрузка...")]
                       : [for (Town town in towns) TownBlock(town)],
+                  // ),
                 ),
               ),
-              SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: towns.isEmpty
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
-                  children: [
-                    TabBar.secondary(
-                      tabs: const [
-                        Tab(
-                          icon: Icon(Icons.fax),
-                          text: "Города",
-                        ),
-                        Tab(
-                          icon: Icon(Icons.manage_search_sharp),
-                          text: "Места",
-                        )
-                      ],
-                      controller: favController,
-                    ),
-                    TabBarView(
-                      controller: favController,
-                      children: [
-                        SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              for (Place place in likedPlaces) Container()
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              // SingleChildScrollView(
+              // child:
+              Column(
+                mainAxisAlignment: towns.isEmpty
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  TabBar.secondary(
+                    tabs: const [
+                      Tab(
+                        icon: Icon(Icons.fax),
+                        text: "Города",
+                      ),
+                      Tab(
+                        icon: Icon(Icons.manage_search_sharp),
+                        text: "Места",
+                      )
+                    ],
+                    controller: favController,
+                  ),
+                  TabBarView(
+                    controller: favController,
+                    children: [
+                      // SingleChildScrollView(
+                      // child:
+                      Column(
+                        children: [
+                          for (Place place in likedPlaces) Container()
+                        ],
+                        // ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SingleChildScrollView(
-                child: Column(
-                  children: [],
-                ),
+              // ),
+              // const SingleChildScrollView(
+              // child:
+              Column(
+                children: [],
+                // ),
               )
             ],
           ),

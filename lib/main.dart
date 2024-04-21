@@ -5,11 +5,13 @@ import 'package:gid_manager/view/auth/vw_register_s1.dart';
 import 'package:gid_manager/view/auth/vw_register_s2.dart';
 import 'package:gid_manager/view/main/vw_home.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:gid_manager/logic/lg_server.dart';
 
 final supabase = Supabase.instance;
 const String _url = "https://vzjwylkhgxzwwzdagdhx.supabase.co";
 const String _anonKey =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6and5bGtoZ3h6d3d6ZGFnZGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4NjQ4OTcsImV4cCI6MjAyNjQ0MDg5N30.RMAOP6CbJntC8fPM35hT9fOP4b1wRJTV8j0rr_t6ayA";
+const SupabaseC supabaseC = SupabaseC(address: _url, anonKey: _anonKey);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
