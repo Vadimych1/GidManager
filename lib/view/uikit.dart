@@ -131,18 +131,19 @@ class TownBlockState extends State<TownBlock> {
   ScrollController scCont = ScrollController();
   Timer timer = Timer(Duration.zero, () {});
   int currentS = 0;
+  double blockWidth = 320.0;
 
   void toNext() {
     if (currentS < widget.town.previewPlaces.length) {
       scCont.animateTo(
-        currentS * (MediaQuery.of(context).size.width - 80),
+        currentS * blockWidth,
         duration: const Duration(seconds: 3),
         curve: Curves.easeIn,
       );
       currentS++;
     } else {
       scCont.animateTo(
-        currentS * (MediaQuery.of(context).size.width - 80),
+        blockWidth,
         duration: const Duration(seconds: 3),
         curve: Curves.easeIn,
       );
@@ -197,12 +198,13 @@ class TownBlockState extends State<TownBlock> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   controller: scCont,
                   child: Row(
                     children: [
                       Container(
-                        width: 300,
+                        width: blockWidth,
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
                           child: Container(
@@ -216,8 +218,8 @@ class TownBlockState extends State<TownBlock> {
                         ),
                       ),
                       for (var el in widget.town.previewPlaces)
-                        Container(
-                          width: 300,
+                        SizedBox(
+                          width: blockWidth,
                           child: AspectRatio(
                             aspectRatio: 16 / 9,
                             child: Container(
@@ -228,7 +230,6 @@ class TownBlockState extends State<TownBlock> {
                                   ),
                                 ),
                               ),
-                              child: Text(el.description.title),
                             ),
                           ),
                         ),
