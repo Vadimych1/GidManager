@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:gid_manager/view/uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:gid_manager/logic/lg_server.dart';
@@ -18,7 +19,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<Town> likedTowns = <Town>[];
   List<Place> likedPlaces = <Place>[];
 
-  late Timer timer;
   late TabController controller;
   late TabController favController;
 
@@ -37,28 +37,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       vsync: this,
     );
     favController = TabController(
-      length: 2,
+      length: 3,
       vsync: this,
     );
 
-    s.getTowns().then((value) {
-      setState(() {
+    s.getTowns().then(
+      (value) {
         towns = value.data;
-      });
-    });
-    timer = Timer.periodic(const Duration(seconds: 30), (t) {
-      // s.getTowns().then((value) {
-      //   setState(() {
-      //     towns = value.data;
-      //   });
-      // });
-    });
+        setState(() {});
+
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            setState(() {});
+            _rebuildAllChildren();
+
+            if (kDebugMode) {
+              print("rebuilded");
+            }
+          },
+        );
+      },
+    );
   }
 
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
+  void _rebuildAllChildren() {
+    reassemble();
   }
 
   @override
@@ -128,54 +132,87 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               ConstrainedBox(
                 constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height),
-                // child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: towns.isEmpty
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
-                  children: towns.isEmpty
-                      ? [const Text("Загрузка...")]
-                      : [for (Town town in towns) TownBlock(town)],
-                  // ),
+                  maxHeight: MediaQuery.of(context).size.height,
+                  maxWidth: 300,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: towns.isEmpty
+                        ? MainAxisAlignment.center
+                        : MainAxisAlignment.start,
+                    children: towns.isEmpty
+                        ? [const Text("Загрузка...")]
+                        : [for (Town town in towns) TownBlock(town)],
+                  ),
                 ),
               ),
-              // SingleChildScrollView(
-              // child:
               Column(
                 mainAxisAlignment: towns.isEmpty
                     ? MainAxisAlignment.center
                     : MainAxisAlignment.start,
                 children: [
-                  TabBar.secondary(
+                  TabBar(
+                    indicatorPadding: EdgeInsets.zero,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    dividerHeight: 0,
+                    padding: EdgeInsets.zero,
+                    labelPadding: EdgeInsets.zero,
                     tabs: const [
                       Tab(
                         icon: Icon(Icons.fax),
                         text: "Города",
+                        iconMargin: EdgeInsets.zero,
                       ),
                       Tab(
                         icon: Icon(Icons.manage_search_sharp),
                         text: "Места",
-                      )
+                        iconMargin: EdgeInsets.zero,
+                      ),
+                      Tab(
+                        icon: Icon(Icons.abc),
+                        text: "Всё",
+                        iconMargin: EdgeInsets.zero,
+                      ),
                     ],
                     controller: favController,
                   ),
-                  TabBarView(
-                    controller: favController,
-                    children: [
-                      // SingleChildScrollView(
-                      // child:
-                      Column(
-                        children: [
-                          for (Place place in likedPlaces) Container()
-                        ],
-                        // ),
-                      ),
-                    ],
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 255,
+                    ),
+                    child: TabBarView(
+                      controller: favController,
+                      children: [
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              // TODO: Fav place view
+                              for (Town place in likedTowns) TownBlock(place),
+                            ],
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              // TODO: Fav place view
+                              for (Place place in likedPlaces) Container(),
+                            ],
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              // TODO: Fav place view
+                              for (Place place in likedPlaces) Container(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              // ),
+
               // const SingleChildScrollView(
               // child:
               Column(

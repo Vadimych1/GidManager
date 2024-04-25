@@ -19,9 +19,14 @@ class _SplashState extends State<Splash> {
     return SafeArea(
       child: Scaffold(
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // TODO: logo
-            Text(
+            Container(
+              width: MediaQuery.of(context).size.width,
+            ),
+            const Text(
               "Gid Manager",
               style: TextStyle(
                 fontSize: 46,

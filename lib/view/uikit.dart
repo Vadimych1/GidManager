@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:gid_manager/view/main/vw_view.dart' as vw;
 import 'package:flutter/material.dart';
 import '../classes/cl_homepage_data.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -126,11 +128,49 @@ class TownBlock extends StatefulWidget {
 }
 
 class TownBlockState extends State<TownBlock> {
+  ScrollController scCont = ScrollController();
+  Timer timer = Timer(Duration.zero, () {});
+  int currentS = 0;
+
+  void toNext() {
+    if (currentS < widget.town.previewPlaces.length) {
+      scCont.animateTo(
+        currentS * (MediaQuery.of(context).size.width - 80),
+        duration: const Duration(seconds: 3),
+        curve: Curves.easeIn,
+      );
+      currentS++;
+    } else {
+      scCont.animateTo(
+        currentS * (MediaQuery.of(context).size.width - 80),
+        duration: const Duration(seconds: 3),
+        curve: Curves.easeIn,
+      );
+      currentS = 0;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 12), (timer) {
+      toNext();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // TODO: open tour select
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => vw.View(
+              town: widget.town.description.title,
+              places: widget.town.previewPlaces,
+            ),
+          ),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
@@ -156,26 +196,47 @@ class TownBlockState extends State<TownBlock> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: const Color(0xFFFFFFFF)),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.fitWidth,
-                            image: NetworkImage(widget.town.imagePath),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: scCont,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 300,
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fitWidth,
+                                image: NetworkImage(widget.town.imagePath),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      for (var el in widget.town.previewPlaces)
+                        Container(
+                          width: 300,
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    el.imagePath,
+                                  ),
+                                ),
+                              ),
+                              child: Text(el.description.title),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
+
+                // Texts
                 Text(
                   widget.town.description.title,
                   style: const TextStyle(

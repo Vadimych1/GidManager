@@ -47,8 +47,6 @@ class MainApp extends StatelessWidget {
         "/register": (context) => const RegisterStep1(),
         "/register/step2": (context) => const RegisterStep2(),
         "/home": (context) => const HomePage(),
-        // "favorite": (context) => const FavoritePage(),
-        // "settings": (context) => const SettingsPage(),
       },
       home: const Scaffold(
         body: Center(

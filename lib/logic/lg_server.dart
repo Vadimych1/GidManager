@@ -4,6 +4,7 @@ import "package:gid_manager/classes/cl_homepage_data.dart";
 import "package:gid_manager/main.dart";
 import "dart:convert";
 import 'package:http/http.dart';
+import './lg_storage.dart';
 
 class SResponse<T> {
   const SResponse({
@@ -44,6 +45,8 @@ class SupabaseC {
 }
 
 class Server {
+  final Storage storage = Storage();
+
   Future<SResponse> login(String email, String password) async {
     var client = supabase.client;
 
@@ -81,7 +84,7 @@ class Server {
     townsR = List<Map<String, dynamic>>.from(townsR!);
 
     if (kDebugMode) {
-      print("Get towns: ${townsR!.length}");
+      print("Get towns: ${townsR.length}");
     }
 
     var towns = <Town>[];
@@ -134,6 +137,72 @@ class Server {
       success: true,
       showAlert: false,
       description: "",
+    );
+  }
+
+  Future<SResponse<List<Place>>> getFavoritePlaces() async {
+    var f = await storage.getFavoritePlaces();
+    var res = <Place>[];
+    for (var el in f) {
+      var r = await supabase.client.from("places").select('*').match(
+        {'id': el},
+      );
+
+      if (r.isNotEmpty) {
+        res.add(
+          Place(
+            id: r[0]["id"],
+            imagePath: r[0]["image"],
+            description: Description(
+                title: r[0]["name"],
+                paragraphs: r[0]["paragraph"],
+                links: r[0]["link"]),
+            stars: r[0]["stars"],
+          ),
+        );
+      }
+    }
+
+    return SResponse<List<Place>>(
+      success: true,
+      showAlert: false,
+      description: "",
+      data: res,
+    );
+  }
+
+  Future<SResponse<List<Town>>> getFavoriteTowns() async {
+    var f = await storage.getFavoriteTowns();
+    var res = <Town>[];
+    for (var el in f) {
+      var r = await supabase.client.from("places").select("*").match(
+        {
+          "id": el,
+        },
+      );
+
+      if (r.isNotEmpty) {
+        res.add(
+          Town(
+            id: el,
+            imagePath: r[0]["image"],
+            description: Description(
+              links: r["links"],
+              paragraphs: r["descriptions"],
+              title: r["name"],
+            ),
+            favorite: true,
+            previewPlaces: [],
+          ),
+        );
+      }
+    }
+
+    return SResponse<List<Town>>(
+      success: true,
+      showAlert: false,
+      description: "",
+      data: res,
     );
   }
 }
