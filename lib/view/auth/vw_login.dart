@@ -22,16 +22,16 @@ class _LoginStep1State extends State<LoginStep1> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // debug button
-            kDebugMode
-                ? ElevatedButton(
-                    child: const Text("Debug Login"),
-                    onPressed: () {
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil("/home", (route) => false);
-                    },
-                  )
-                : Container(),
-
+            // kDebugMode
+            // ?
+            ElevatedButton(
+              child: const Text("Debug Login"),
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil("/home", (route) => false);
+              },
+            ),
+            // : Container(),
             // Texts
             Container(
               margin: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
